@@ -1,0 +1,3 @@
+local sounds = {}
+
+return sounds
