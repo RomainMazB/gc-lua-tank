@@ -58,7 +58,8 @@ function Projectiles.draw()
 end
 
 function Projectiles.update(dt)
-    for _k, projectile in ipairs(Projectiles.projectiles) do
+    for p=#Projectiles.projectiles,1,-1 do
+        local projectile = Projectiles.projectiles[p]
         local deltaVx = projectile.vx * dt
         local deltaVy = projectile.vy * dt
 
@@ -69,16 +70,17 @@ function Projectiles.update(dt)
         -- Decrease its remaining range to make it disappear
         projectile.range = projectile.range - math.sqrt(deltaVx^2 + deltaVy^2)
         if projectile.range <= 0 then
-            table.remove(Projectiles.projectiles, _k)
+            table.remove(Projectiles.projectiles, p)
         end
     end
 
-    for _k, detonation in ipairs(Projectiles.detonations) do
+    for d=#Projectiles.detonations,1,-1 do
+        local detonation = Projectiles.detonations[d]
         -- When a bullet is being fired, set a remaining timer to delay the disappearing of the detonation
         detonation.remainingTime = detonation.remainingTime - dt
 
         if detonation.remainingTime < 0 then
-            table.remove(Projectiles.detonations, _k)
+            table.remove(Projectiles.detonations, d)
         end
 
         -- Update the detonation x/y to make it follow the weapon

@@ -28,7 +28,8 @@ function Collisions.update(dt)
         end
     end
 
-    for _l, projectile in ipairs(Projectiles.projectiles) do
+    for p=#Projectiles.projectiles,1,-1 do
+        local projectile = Projectiles.projectiles[p]
         -- If the projectile collides an obstacle that can't be traversed
         -- Desinstegrate it and abort
         local tilemapProjectileX, tilemapProjectileY = Game.revProjection(projectile.x, projectile.y)
@@ -37,17 +38,18 @@ function Collisions.update(dt)
             Game.Obstacles[tilemapProjectileY][tilemapProjectileX] ~= nil and
             not Game.Obstacles[tilemapProjectileY][tilemapProjectileX].canBeTraversed
         then
-            projectile.desintegrate(_l)
+            projectile.desintegrate(p)
             goto continue
         end
 
-        for _k, enemy in ipairs(Enemies.enemies) do
+        for e=#Enemies.enemies,1,-1 do
+            local enemy = Enemies.enemies[e]
             if Collisions.isTouching(enemy, projectile) then
                 projectile.afflictDamageCallback(enemy)
-                table.remove(Projectiles.projectiles, _l)
-                print(enemy.life)
+                table.remove(Projectiles.projectiles, p)
+
                 if enemy.life <= 0 then
-                    table.remove(Enemies.enemies, _k)
+                    table.remove(Enemies.enemies, e)
                 end
             end
         end
