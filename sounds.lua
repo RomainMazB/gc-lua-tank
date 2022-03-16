@@ -1,3 +1,0 @@
-local sounds = {}
-
-return sounds
