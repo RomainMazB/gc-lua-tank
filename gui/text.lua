@@ -8,10 +8,9 @@ return function (gui, x, y, w, h, text, font, hAlign, vAlign, color)
   element.textH = font:getHeight(text)
   element.hAlign = hAlign
   element.vAlign = vAlign
+  element.color = color or {1, 1, 1, 1}
 
   function element:drawText()
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.setFont(self.font)
     local x = self.x
     local y = self.y
 
@@ -29,7 +28,7 @@ return function (gui, x, y, w, h, text, font, hAlign, vAlign, color)
         y = y + self.h - self.textH
     end
 
-    love.graphics.print(self.text, x, y)
+    love.graphics.print({self.color, self.text}, self.font, x, y)
   end
 
   function element:draw()

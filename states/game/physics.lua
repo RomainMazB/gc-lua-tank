@@ -15,7 +15,7 @@ end
 
 -- Return the distance between two objects relatively to their center point
 function module.distanceToCenter(a, b)
-    return math.sqrt((a.x - b.x)^2 + (a.y - b.y)^2)
+    return math.dist(a.x, a.y, b.x, b.y)
 end
 
 -- Return the distance between two objects bounding boxes
@@ -42,9 +42,14 @@ function module.newPhysicsBody(kind, x, y, vx, vy, width, height, angle)
     }
 
     -- Move the body according to the velocity and deltatime
+    -- Return the vector representing the distance
     function body:move(dt)
-        self.x = self.x + self.vx * dt
-        self.y = self.y + self.vy * dt
+        local dX = self.vx * dt
+        local dY = self.vy * dt
+        self.x = self.x + dX
+        self.y = self.y + dY
+
+        return math.abs(dX), math.abs(dY)
     end
 
     -- Detect if the current body is touching another one

@@ -15,7 +15,7 @@ game.Pathfinding = require(gameNamespace..'pathfinding')
 game.Gameplay = require(gameNamespace..'gameplay')
 
 local function load(level)
-    game.Level.load(game, 1)
+    game.Level.load(game, level)
     game.Player.load(game)
     game.Projectiles.load(game)
     game.Enemies.load(game)
@@ -32,7 +32,7 @@ local function load(level)
 end
 
 local function update(dt)
-    if not game.Level.isPaused then
+    if not game.Gameplay.isPaused then
         game.Controls.handleKeyboardControls(dt)
         game.Controls.handleMouseControls(dt)
         game.Player.update(dt)
@@ -71,7 +71,12 @@ end
 
 -- Cleanup data on gamestate destroy
 local function destroy()
-    game = {}
+    game.Level.destroy()
+    game.Player.destroy()
+    game.Enemies.destroy()
+    game.Hostages.destroy()
+    game.Projectiles.destroy()
+    game.Gameplay.destroy()
 end
 
 -- Register the game state methods

@@ -68,8 +68,8 @@ return {
         clearLoveCallbacks()
 
         -- If the current gamestate registered a "destroy" callback, call it
-        if current and 'function' == type(states.registeredStates[name][GAMESTATE_PREFIX..'destroy']) then
-            states.registeredStates[name][GAMESTATE_PREFIX..'destroy']()
+        if current and 'function' == type(states.registeredStates[current][GAMESTATE_PREFIX..'destroy']) then
+            states.registeredStates[current][GAMESTATE_PREFIX..'destroy']()
         end
 
         -- For all the native callbacks:
@@ -81,8 +81,10 @@ return {
         end
 
         -- If the new gamestate registered a load function, call it
-        if states.registeredStates[name][GAMESTATE_PREFIX..'load'] ~= nil then
+        if 'function' == type(states.registeredStates[name][GAMESTATE_PREFIX..'load']) then
             states.registeredStates[name][GAMESTATE_PREFIX..'load'](...)
         end
+
+        current = name
     end
 }

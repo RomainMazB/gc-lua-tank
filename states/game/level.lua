@@ -1,5 +1,4 @@
-local Level = {
-    isPaused = false,
+local module = {
     mapHeight = 0,
     mapWidth = 0,
     tileWidth = 0,
@@ -20,44 +19,42 @@ local Level = {
             items = {}
         }
     },
-    obstacles = {},
-    enemies = {}
+    obstacles = {}
 }
 
 local enemies, hostages
-function Level.load(game, level)
+function module.load(game, level)
     enemies = game.Enemies
     hostages = game.Hostages
 
-    Level.mapData = require('levels.level'..level)
-    Level.mapWidth = Level.mapData.width
-    Level.mapHeight = Level.mapData.height
-    Level.tileWidth = Level.mapData.tilewidth
-    Level.tileHeight = Level.mapData.tileheight
-    Level.tilesets.map.image = love.graphics.newImage("assets/images/tilesets/map.png")
-    Level.tilesets.map.width = Level.tilesets.map.image:getWidth()
-    Level.tilesets.map.height = Level.tilesets.map.image:getHeight()
-    local nbColumns = Level.tilesets.map.width / Level.tileWidth
-    local nbLines = Level.tilesets.map.height / Level.tileHeight
+    module.mapData = dofile(love.filesystem.getWorkingDirectory()..'/levels/level'..level..'.lua')
+    module.mapWidth = module.mapData.width
+    module.mapHeight = module.mapData.height
+    module.tileWidth = module.mapData.tilewidth
+    module.tileHeight = module.mapData.tileheight
+    module.tilesets.map.image = love.graphics.newImage("assets/images/tilesets/map.png")
+    module.tilesets.map.width = module.tilesets.map.image:getWidth()
+    module.tilesets.map.height = module.tilesets.map.image:getHeight()
+    local nbColumns = module.tilesets.map.width / module.tileWidth
+    local nbLines = module.tilesets.map.height / module.tileHeight
 
-    Level.tilesets.map.items[0] = nil
     for l=1,nbLines do
       for c=1,nbColumns do
         table.insert(
-            Level.tilesets.map.items,
+            module.tilesets.map.items,
             love.graphics.newQuad(
-                (c-1)*Level.tileWidth, (l-1) * Level.tileHeight,
-                Level.tileWidth, Level.tileHeight,
-                Level.tilesets.map.width, Level.tilesets.map.height
+                (c-1)*module.tileWidth, (l-1) * module.tileHeight,
+                module.tileWidth, module.tileHeight,
+                module.tilesets.map.width, module.tilesets.map.height
             )
         )
       end
     end
 
     -- Load all the obstacles images
-    for _,obstacle in pairs(Level.mapData.tilesets[2].tiles) do
+    for _,obstacle in pairs(module.mapData.tilesets[2].tiles) do
        local obstacleImage = love.graphics.newImage(obstacle.image:sub(4))
-       Level.tilesets.obstacles.items[Level.mapData.tilesets[2].firstgid + obstacle.id] = {
+       module.tilesets.obstacles.items[module.mapData.tilesets[2].firstgid + obstacle.id] = {
            image = obstacleImage,
            width = obstacleImage:getWidth(),
            height = obstacleImage:getHeight()
@@ -65,9 +62,9 @@ function Level.load(game, level)
     end
 
     -- Load all the enemies images
-    for _,enemy in pairs(Level.mapData.tilesets[3].tiles) do
+    for _,enemy in pairs(module.mapData.tilesets[3].tiles) do
        local enemyImage = love.graphics.newImage(enemy.image:sub(4))
-       Level.tilesets.enemies.items[Level.mapData.tilesets[3].firstgid + enemy.id] = {
+       module.tilesets.enemies.items[module.mapData.tilesets[3].firstgid + enemy.id] = {
            image = enemyImage,
            width = enemyImage:getWidth(),
            height = enemyImage:getHeight()
@@ -75,8 +72,8 @@ function Level.load(game, level)
     end
 
     -- Read the map data to feed the map's obstacles
-    for _,obstacle in pairs(Level.mapData.layers[2].objects) do
-        local tilesetObstacles = Level.tilesets.obstacles.items[obstacle.gid]
+    for _,obstacle in pairs(module.mapData.layers[2].objects) do
+        local tilesetObstacles = module.tilesets.obstacles.items[obstacle.gid]
 
         if tilesetObstacles ~= nil then
             -- Because Tiled gives items layers position by the left **bottom** of the object
@@ -84,10 +81,10 @@ function Level.load(game, level)
             -- Cf: https://github.com/mapeditor/tiled/issues/1710#issuecomment-325672568
             local x = obstacle.x + obstacle.width/2
             local y = obstacle.y - obstacle.height/2
-            local xMap, yMap = Level.revProjection(x, y)
+            local xMap, yMap = module.revProjection(x, y)
 
-            if Level.obstacles[yMap] == nil then
-                Level.obstacles[yMap] = {}
+            if module.obstacles[yMap] == nil then
+                module.obstacles[yMap] = {}
             end
 
             local newObstacle = {}
@@ -100,13 +97,13 @@ function Level.load(game, level)
                 y = yMap,
             }
 
-            Level.obstacles[yMap][xMap] = newObstacle
+            module.obstacles[yMap][xMap] = newObstacle
         end
     end
 
     -- Read the map data to feed the map's enemies
-    for _,enemy in pairs(Level.mapData.layers[3].objects) do
-        local tilesetEnemies = Level.tilesets.enemies.items[enemy.gid]
+    for _,enemy in pairs(module.mapData.layers[3].objects) do
+        local tilesetEnemies = module.tilesets.enemies.items[enemy.gid]
 
         if tilesetEnemies ~= nil then
             -- Because Tiled gives items layers position by the left **bottom** of the object
@@ -122,8 +119,8 @@ function Level.load(game, level)
     end
 
     -- Read the map data to feed the map's hostages
-    for _,hostage in pairs(Level.mapData.layers[4].objects) do
-        local tilesetHostages = Level.tilesets.obstacles.items[hostage.gid]
+    for _,hostage in pairs(module.mapData.layers[4].objects) do
+        local tilesetHostages = module.tilesets.obstacles.items[hostage.gid]
 
         if tilesetHostages ~= nil then
             -- Because Tiled gives items layers position by the left **bottom** of the object
@@ -139,31 +136,31 @@ function Level.load(game, level)
     end
 end
 
-function Level.projection(column, row)
-    return column * Level.tileWidth + Level.tileWidth/2, row * Level.tileHeight + Level.tileHeight/2
+function module.projection(column, row)
+    return column * module.tileWidth + module.tileWidth/2, row * module.tileHeight + module.tileHeight/2
 end
 
-function Level.revProjection(x, y)
-    return math.floor(x / Level.tileWidth), math.floor(y / Level.tileHeight)
+function module.revProjection(x, y)
+    return math.floor(x / module.tileWidth), math.floor(y / module.tileHeight)
 end
 
-function Level.draw()
-    local levelData = Level.mapData.layers[1].data
-    for l=Level.mapHeight,1,-1 do
-        for c=Level.mapWidth,1,-1 do
-            local tile = levelData[(l-1)*Level.mapWidth+c]
+function module.draw()
+    local levelData = module.mapData.layers[1].data
+    for l=module.mapHeight,1,-1 do
+        for c=module.mapWidth,1,-1 do
+            local tile = levelData[(l-1)*module.mapWidth+c]
 
             if tile > 0 then
-                local image = Level.tilesets.map.image
-                local texQuad = Level.tilesets.map.items[tile]
-                local x, y = Level.projection(c-1, l-1)
+                local image = module.tilesets.map.image
+                local texQuad = module.tilesets.map.items[tile]
+                local x, y = module.projection(c-1, l-1)
 
                 if texQuad ~= nil then
-                    love.graphics.draw(image, texQuad, x, y, 0, 1, 1, Level.tileWidth/2, Level.tileHeight/2)
+                    love.graphics.draw(image, texQuad, x, y, 0, 1, 1, module.tileWidth/2, module.tileHeight/2)
                 end
             end
 
-            local obstacle = Level.obstacles[l] ~= nil and Level.obstacles[l][c] ~= nil and Level.obstacles[l][c] or nil
+            local obstacle = module.obstacles[l] ~= nil and module.obstacles[l][c] ~= nil and module.obstacles[l][c] or nil
             if obstacle ~= nil then
                 love.graphics.draw(obstacle.image, obstacle.body.x, obstacle.body.y, obstacle.body.angle, 1, 1, obstacle.body.width/2, obstacle.body.height/2)
             end
@@ -171,4 +168,9 @@ function Level.draw()
     end
 end
 
-return Level
+function module.destroy()
+    module.mapData = {}
+    module.obstacles = {}
+end
+
+return module

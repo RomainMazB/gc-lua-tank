@@ -2,7 +2,7 @@ local gameOverText
 
 local function love_load()
     local font = love.graphics.newFont('assets/fonts/kenney_pixel_square.ttf', 50)
-    gameOverText = Gui.text(0, 0, Screen.width, Screen.height, "GAME OVER", font, "center", "center")
+    gameOverText = Gui.text(0, 0, Screen.width, Screen.height, "GAME OVER", font, "center", "center", {1, 0, 0, 1})
 end
 
 local function love_draw()
@@ -10,7 +10,9 @@ local function love_draw()
 end
 
 local function keypressed(key)
-    GameState.setState('menu')
+    if (key == 'escape') then
+        GameState.setState('menu')
+    end
 end
 
 return {

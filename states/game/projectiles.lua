@@ -4,7 +4,7 @@ local module = {
     explosionsLst = {},
     KINDS = {
         ALLY = 0,
-        ENEMY = 0
+        ENEMY = 1
     }
 }
 
@@ -22,8 +22,8 @@ function module.load()
     bullet = love.graphics.newImage("assets/images/bullets/bulletRed1_outline.png")
     bang = love.graphics.newImage("assets/images/shots/shotThin.png")
     shotSound = love.audio.newSource("assets/sounds/shot.wav","static")
-    tankExplosionSound = love.audio.newSource("assets/sounds/shot.wav","static")
-    objectExplosionSound = love.audio.newSource("assets/sounds/shot.wav","static")
+    tankExplosionSound = love.audio.newSource("assets/sounds/explosion-tank.wav","static")
+    objectExplosionSound = love.audio.newSource("assets/sounds/explosion-object.wav","static")
 
     tankExplosion = {
         image = love.graphics.newImage("assets/images/explosions/explosion2_spritesheet.png")
@@ -40,7 +40,7 @@ end
 
 function module.new(kind, x, y, vx, vy, fromVX, fromVY, angle, range, damage)
     local projectile = {}
-    projectile.body = physics.newPhysicsBody(physics.KINDS.PROJECTILE, x, y, vx, vy, bullet:getWidth(), bullet:getHeight(), angle)
+    projectile.body = physics.newPhysicsBody(physics.KINDS.PROJECTILE, x, y, vx + fromVX, vy + fromVY, bullet:getWidth(), bullet:getHeight(), angle)
     projectile.range = range
     projectile.damage = damage
     projectile.kind = kind
@@ -48,17 +48,23 @@ function module.new(kind, x, y, vx, vy, fromVX, fromVY, angle, range, damage)
     function projectile.body:collides(dt, collider, projectileRef)
         if collider.body.kind == physics.KINDS.FIXED_OBSTACLE then
             table.insert(module.explosionsLst, Animation.new(objectExplosion.image, self.x, self.y, 128, objectExplosion.height, .3, true))
-        elseif collider.body.kind == physics.KINDS.ENEMY and projectileRef.kind == module.KINDS.ALLY then
-            collider.life = collider.life - 10
-            table.insert(module.explosionsLst, Animation.new(tankExplosion.image, self.x, self.y, 128, tankExplosion.height, .3, true))
-            -- TODO: increase the score
-        elseif collider.body.kind == physics.KINDS.ALLY and projectileRef.kind == module.KINDS.ENEMY then
-            collider.life = collider.life - 10
-            table.insert(module.explosionsLst, Animation.new(tankExplosion.image, self.x, self.y, 128, tankExplosion.height, .3, true))
-        end
 
-        -- Make this projectile nil so it will be removed from the table on the next update
-        projectileRef.range = 0
+            objectExplosionSound:stop()
+            objectExplosionSound:play()
+
+            -- Make this projectile nil so it will be removed from the table on the next update
+            projectileRef.range = 0
+        elseif (collider.body.kind == physics.KINDS.ENEMY and projectileRef.kind == module.KINDS.ALLY)
+            or (collider.body.kind == physics.KINDS.HERO and projectileRef.kind == module.KINDS.ENEMY) then
+            collider.life = collider.life - 10
+            table.insert(module.explosionsLst, Animation.new(tankExplosion.image, self.x, self.y, 128, tankExplosion.height, .3, true))
+
+            tankExplosionSound:stop()
+            tankExplosionSound:play()
+
+            -- Make this projectile nil so it will be removed from the table on the next update
+            projectileRef.range = 0
+        end
     end
 
     table.insert(module.projectilesLst, projectile)
@@ -71,8 +77,8 @@ function module.new(kind, x, y, vx, vy, fromVX, fromVY, angle, range, damage)
 
     -- Because a single audio source can't be played multiple times in parallel
     -- We need to stop the audio before playing it another time
-    -- shotSound:stop()
-    -- shotSound:play()
+    shotSound:stop()
+    shotSound:play()
 
     return projectile
 end
@@ -137,6 +143,10 @@ function module.draw()
     for _, explosion in ipairs(module.explosionsLst) do
         explosion:draw()
     end
+end
+
+function module.destroy()
+    module.projectilesLst = {}
 end
 
 return module

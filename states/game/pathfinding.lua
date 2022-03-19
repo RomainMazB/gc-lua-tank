@@ -8,16 +8,11 @@ local roundPoint = function (point)
     }
 end
 
--- Return the linear segment from a to b with a stepSize dimension
-module.lerp = function (a, b, stepSize)
-    return a + stepSize * (b - a)
-end
-
 -- Return the 2D segment from a to b with a stepSize dimension
 module.lerpPoint = function (aX, aY, bX, bY, stepSize)
     return {
-        x = module.lerp(aX, bX, stepSize),
-        y = module.lerp(aY, bY, stepSize)
+        x = lerp(aX, bX, stepSize),
+        y = lerp(aY, bY, stepSize)
     }
 end
 

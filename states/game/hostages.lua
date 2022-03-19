@@ -33,10 +33,16 @@ function module.new(x, y, width, height, angle)
 
     function hostage.body:collides(dt, collider, hostageRef)
         if collider.body.kind == physics.KINDS.HERO then
+            -- If the hostage state is MOTIONLESS, it means that an enemy can see him
+            if hostageRef.ia.state == IA_STATES.MOTIONLESS then
+                -- Display a warning message: you need to kill all visible enemies before rescuing hostages
+                gameplay.displayWarningMessage("You need to defeat all visible enemies first!!!")
+            else
             -- Make this hostage rescued so it will be removed from the table on the next update
             hostageRef.ia.state = IA_STATES.RESCUED
             -- TODO: Play an animation?
             -- table.insert(module.explosionsLst, Animation.new(tankExplosion.image, self.x, self.y, 128, tankExplosion.height, .3, true))
+            end
         end
     end
 
@@ -69,8 +75,8 @@ function module.update(dt)
 
         -- Register the rescued hostage and remove them from the list
         if hostage.ia.state == IA_STATES.RESCUED then
-            gameplay.rescueHostage()
             table.remove(module.hostagesLst, h)
+            gameplay.rescueHostage()
             goto continue
         end
 
@@ -121,6 +127,10 @@ function module.draw()
     for _, hostage in ipairs(module.hostagesLst) do
         love.graphics.draw(hostage.image, hostage.body.x, hostage.body.y, hostage.body.angle, 1, 1, 0, hostage.image:getHeight() /2)
     end
+end
+
+function module.destroy()
+    module.hostagesLst = {}
 end
 
 return module

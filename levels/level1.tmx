@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-up" width="23" height="50" tilewidth="64" tileheight="64" infinite="0" nextlayerid="7" nextobjectid="208">
+<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-up" width="23" height="50" tilewidth="64" tileheight="64" infinite="0" nextlayerid="7" nextobjectid="238">
  <editorsettings>
   <export target="level1.lua" format="lua"/>
  </editorsettings>
  <properties>
   <property name="playerstartingx" type="int" value="11"/>
   <property name="playerstartingy" type="int" value="48"/>
-  <property name="timer" type="int" value="150"/>
+  <property name="timer" type="int" value="300"/>
  </properties>
  <tileset firstgid="1" name="map" tilewidth="64" tileheight="64" tilecount="40" columns="10">
   <image source="../assets/images/tilesets/map.png" width="640" height="256"/>
@@ -221,7 +221,7 @@
 19,19,19,19,19,19,19,19,19,19,19,20,19,19,19,19,19,19,19,19,19,19,19
 </data>
  </layer>
- <objectgroup id="3" name="Objets" locked="1">
+ <objectgroup id="3" name="Objets">
   <object id="17" gid="51" x="1016.34" y="3013" width="56" height="56"/>
   <object id="18" gid="51" x="901.667" y="3002" width="56" height="56"/>
   <object id="19" gid="51" x="787.333" y="3016.67" width="56" height="56"/>
@@ -353,6 +353,28 @@
   <object id="159" gid="88" x="1167.33" y="2166" width="36" height="36"/>
   <object id="160" gid="88" x="1034" y="2167.33" width="36" height="36"/>
   <object id="161" gid="44" x="838.667" y="2170.67" width="48" height="48"/>
+  <object id="208" gid="87" x="578.667" y="1597.33" width="64" height="64"/>
+  <object id="209" gid="87" x="505.333" y="1582.67" width="64" height="64"/>
+  <object id="210" gid="87" x="438.667" y="1606.67" width="64" height="64"/>
+  <object id="211" gid="87" x="372" y="1590.67" width="64" height="64"/>
+  <object id="212" gid="52" x="6.66667" y="1530.67" width="56" height="56"/>
+  <object id="213" gid="52" x="66.6667" y="1522.67" width="56" height="56"/>
+  <object id="214" gid="52" x="122.667" y="1534.67" width="56" height="56"/>
+  <object id="215" gid="66" x="536.667" y="2476.67" width="36" height="36"/>
+  <object id="216" gid="66" x="472.667" y="2499.33" width="36" height="36"/>
+  <object id="217" gid="61" x="378.667" y="2554.67" width="64" height="64"/>
+  <object id="218" gid="58" x="638.667" y="498" width="64" height="44"/>
+  <object id="219" gid="58" x="637.333" y="628.667" width="64" height="44"/>
+  <object id="220" gid="58" x="640" y="762" width="64" height="44"/>
+  <object id="221" gid="58" x="768" y="946" width="64" height="44"/>
+  <object id="222" gid="57" x="888.667" y="957.333" width="84" height="55"/>
+  <object id="223" gid="57" x="672.869" y="797.783" width="84" height="55" rotation="213.158"/>
+  <object id="224" gid="57" x="628.758" y="650.854" width="84" height="55" rotation="57.0826"/>
+  <object id="225" gid="51" x="648" y="894.667" width="56" height="56"/>
+  <object id="226" gid="51" x="704" y="958.667" width="56" height="56"/>
+  <object id="227" gid="52" x="837.333" y="958.667" width="56" height="56"/>
+  <object id="228" gid="52" x="641.333" y="573.333" width="56" height="56"/>
+  <object id="229" gid="52" x="965.333" y="958.667" width="56" height="56"/>
  </objectgroup>
  <objectgroup id="4" name="Ennemis" locked="1">
   <object id="163" gid="90" x="658.228" y="2548.8" width="46" height="42" rotation="268.586"/>
@@ -382,8 +404,11 @@
   <object id="188" gid="90" x="1159.67" y="1526.33" width="46" height="42"/>
   <object id="189" gid="90" x="1223.67" y="1527.67" width="46" height="42"/>
   <object id="190" gid="90" x="1290.33" y="1525" width="46" height="42"/>
+  <object id="235" gid="90" x="778.333" y="757" width="46" height="42"/>
+  <object id="236" gid="90" x="905" y="758.333" width="46" height="42"/>
+  <object id="237" gid="90" x="1031.67" y="757" width="46" height="42"/>
  </objectgroup>
- <objectgroup id="6" name="Otages">
+ <objectgroup id="6" name="Otages" locked="1">
   <object id="191" gid="89" x="592.667" y="3064.67" width="36" height="43" rotation="180"/>
   <object id="192" gid="89" x="592.667" y="3190" width="36" height="43" rotation="180"/>
   <object id="193" gid="89" x="1360.22" y="2251.38" width="36" height="43" rotation="90"/>
@@ -401,6 +426,11 @@
   <object id="205" gid="89" x="971.333" y="2040.67" width="36" height="43" rotation="270"/>
   <object id="206" gid="89" x="1298" y="2675.33" width="36" height="43" rotation="90"/>
   <object id="207" gid="89" x="1427.33" y="2678" width="36" height="43" rotation="90"/>
+  <object id="230" gid="89" x="978" y="888.667" width="36" height="43"/>
+  <object id="231" gid="89" x="915.333" y="891.333" width="36" height="43"/>
+  <object id="232" gid="89" x="850" y="891.333" width="36" height="43"/>
+  <object id="233" gid="89" x="786" y="892.667" width="36" height="43"/>
+  <object id="234" gid="89" x="720.667" y="886" width="36" height="43"/>
  </objectgroup>
  <imagelayer id="5" name="Decorations" locked="1"/>
 </map>

@@ -2,9 +2,6 @@ io.stdout:setvbuf("no")
 
 -- Add some useful but missing method to math native library
 math.half_pi = math.pi/2
-math.round = function (n)
-    return n % 1 >= 0.5 and math.ceil(n) or math.floor(n)
-end
 
 Screen = {
     width = 0,
@@ -17,10 +14,11 @@ Screen = {
 GameState = require 'gamestate'
 Animation = require 'animation'
 Gui = require 'gui.main'
+require 'math-extended'
 
 function love.load()
     -- Setup the OS window
-    love.window.setFullscreen(true)
+    -- love.window.setFullscreen(true)
     love.window.setTitle('Battle Tank')
     love.window.setIcon(love.image.newImageData('assets/images/crosshair.png'))
 

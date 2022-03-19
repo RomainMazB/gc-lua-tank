@@ -76,7 +76,7 @@ function module.handleMouseControls(dt)
     local newCrosshairXPosition = hero.body.x + math.cos(hero.weapon.angle) * hero.weapon.range
     local newCrosshairYPosition = hero.body.y + math.sin(hero.weapon.angle) * hero.weapon.range
     -- Round the distance the crosshair should move and add a minimum of 5 pixel to avoid crosshair vibrations
-    if 5 < math.abs(math.round(module.doubleCrosshair.x - module.doubleCrosshair.y) - math.round(newCrosshairXPosition - newCrosshairYPosition)) then
+    if 5 < math.abs(math.round(module.doubleCrosshair.x - module.doubleCrosshair.y, 0) - math.round(newCrosshairXPosition - newCrosshairYPosition)) then
         module.doubleCrosshair.x = newCrosshairXPosition
         module.doubleCrosshair.y = newCrosshairYPosition
     end
@@ -90,14 +90,14 @@ function module.mousepressed(_, _, button)
 
         -- Calculate the offset point to make the bullet start at the end of the weapon
         -- And so does the bang!
-        local offsetX = weaponCosAngle * hero.weapon.width
-        local offsetY = weaponSinAngle * hero.weapon.width
+        local offsetX = weaponCosAngle * (hero.weapon.width - hero.weapon.offsetX) - hero.weapon.offsetX
+        local offsetY = weaponSinAngle * (hero.weapon.width - hero.weapon.offsetX)
         local bulletStartingX = hero.body.x + hero.weapon.offsetX + offsetX
         local bulletStartingY = hero.body.y + hero.weapon.offsetY + offsetY
 
         -- Calculate the bullet's velocity and add the tank's velocity to it
-        local bulletVx = weaponCosAngle * hero.weapon.bulletSpeed + hero.body.vx
-        local bulletVy = weaponSinAngle * hero.weapon.bulletSpeed + hero.body.vy
+        local bulletVx = weaponCosAngle * hero.weapon.bulletSpeed
+        local bulletVy = weaponSinAngle * hero.weapon.bulletSpeed
         local bulletOffsetHyp = hero.body:distanceToCenterOf({x = bulletStartingX, y = bulletStartingY})
         projectiles.new(projectiles.KINDS.ALLY, bulletStartingX, bulletStartingY, bulletVx, bulletVy, hero.body.vx, hero.body.vy, hero.weapon.angle, hero.weapon.range - bulletOffsetHyp)
     end

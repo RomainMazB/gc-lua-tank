@@ -15,10 +15,6 @@ local function load()
             callback = function () GameState.setState('init-game') end
         },
         {
-            text = 'Settings',
-            callback = function () GameState.setState('settings') end
-        },
-        {
             text = 'Quit',
             callback = function () love.event.quit() end
         }

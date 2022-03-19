@@ -16,29 +16,14 @@ end
 function module.update(dt)
     -- Center the camera on the hero with a min value fixed at the top and max at the bottom of the map
     if Screen.width < level.mapWidth * level.tileWidth then
-        module.x = math.max(
-            Screen.width - level.mapWidth * level.tileWidth,
-            math.min(
-                0,
-                Screen.midWidth - hero.body.x
-            )
-        )
+        module.x = math.clamp(0, Screen.midWidth - hero.body.x, Screen.width - level.mapWidth * level.tileWidth)
     else
         module.x = (Screen.width - level.mapWidth * level.tileWidth) / 2
     end
 
     -- If the map height is greater than the screen, we need to handle the scroll
     if Screen.height < level.mapHeight * level.tileHeight then
-        module.y = math.max(
-            -- Can't go out of the map bottom
-            Screen.height - level.mapHeight * level.tileHeight,
-            math.min(
-                -- Can't go out of the map top
-                0,
-                -- Centered on the player
-                Screen.midHeight - hero.body.y
-            )
-        )
+        module.y = math.clamp(0, Screen.midHeight - hero.body.y, Screen.height - level.mapHeight * level.tileHeight)
     else
         module.y = (Screen.height - level.mapHeight * level.tileHeight) / 2
     end

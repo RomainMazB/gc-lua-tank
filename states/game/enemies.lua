@@ -21,8 +21,9 @@ function module.new(x, y, width, height, angle)
     enemy.life = 100
     enemy.maxLife = 100
     enemy.range = 500
-    enemy.fireSpeed = .5
+    enemy.fireSpeed = 3
     enemy.lastFiredBulletTimer = 0
+    enemy.bulletSpeed = 250
     enemy.canSeeTheHero = false
     enemy.tilemapCoords = {}
     enemy.ia = {
@@ -60,7 +61,9 @@ function module.new(x, y, width, height, angle)
         local weaponSinAngle = math.sin(self.body.angle)
         local offsetX = weaponCosAngle * self.body.width
         local offsetY = weaponSinAngle * self.body.width
-        projectiles.new(projectiles.KINDS.ENEMY, self.body.x + offsetX, self.body.y + offsetY, self.body.vx, self.body.vy, self.body.vx, self.body.vy, self.body.angle, self.range)
+        local bulletVx = weaponCosAngle * self.bulletSpeed
+        local bulletVy = weaponSinAngle * self.bulletSpeed
+        projectiles.new(projectiles.KINDS.ENEMY, self.body.x + offsetX, self.body.y + offsetY, bulletVx, bulletVy, self.body.vx, self.body.vy, self.body.angle, self.range)
         self.lastFiredBulletTimer = self.fireSpeed
     end
 
@@ -70,7 +73,15 @@ function module.new(x, y, width, height, angle)
 end
 
 function module.update(dt)
-    for _, enemy in ipairs(module.enemiesLst) do
+    for e=#module.enemiesLst,1,-1 do
+        local enemy = module.enemiesLst[e]
+
+        -- Remove dead enemies
+        if enemy.life <= 0 then
+            table.remove(module.enemiesLst, e)
+            goto continue
+        end
+
         local enemyX, enemyY = level.revProjection(enemy.body.x, enemy.body.y)
         enemy.tilemapCoords.x = enemyX
         enemy.tilemapCoords.y = enemyY
@@ -125,6 +136,8 @@ function module.update(dt)
                 enemy.lastFiredBulletTimer = math.max(0, enemy.lastFiredBulletTimer - dt)
             end
         end
+
+        ::continue::
     end
 end
 
@@ -132,6 +145,21 @@ function module.draw()
     for _, enemy in ipairs(module.enemiesLst) do
         love.graphics.draw(enemy.image, enemy.body.x, enemy.body.y, enemy.body.angle, 1, 1, 0, enemy.image:getHeight() /2)
     end
+
+    -- Using two enemiesLst pass to make lifebar not hidden by other tanks
+    for _, enemy in ipairs(module.enemiesLst) do
+        love.graphics.setColor(1, 1, 1, .3)
+        love.graphics.rectangle("line", enemy.body.x - 50, enemy.body.y - 50, 102, 12)
+        love.graphics.setColor(0, 0, 0, .3)
+        love.graphics.rectangle("fill", enemy.body.x - 49, enemy.body.y - 49, 100, 10)
+        love.graphics.setColor(1, 0, 0, .5)
+        love.graphics.rectangle("fill", enemy.body.x - 49, enemy.body.y - 49, enemy.life * enemy.maxLife / 100, 10)
+        love.graphics.setColor(1, 1, 1, 1)
+    end
+end
+
+function module.destroy()
+    module.enemiesLst = {}
 end
 
 return module
