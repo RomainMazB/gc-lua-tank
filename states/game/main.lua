@@ -27,8 +27,7 @@ local function load(level)
     game.Camera.load(game)
 
     -- Change the cursor by the crosshair
-    local crosshairCursor = love.mouse.newCursor('assets/images/crosshair.png', game.Controls.doubleCrosshair.width /2, game.Controls.doubleCrosshair.height /2)
-    love.mouse.setCursor(crosshairCursor)
+    love.mouse.setCursor(love.mouse.newCursor('assets/images/crosshair.png', 18, 18))
 end
 
 local function update(dt)
@@ -53,7 +52,6 @@ local function draw()
     game.Enemies.draw()
     game.Hostages.draw()
     game.Projectiles.draw()
-    game.Controls.draw()
     game.Gameplay.draw()
 
     game.Camera:unset()

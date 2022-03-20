@@ -1,6 +1,4 @@
-local module = {
-    isPaused = false
-}
+local module = {}
 
 local timer
 local hostageImage
@@ -32,12 +30,7 @@ function module.load(game)
     love.graphics.newCanvas()
 end
 
-function module.rescueHostage()
-    if #hostagesLst == 0 then
-        GameState.setState('level-win')
-    end
-end
-
+-- Display a warning message on the middle of the screen
 function module.displayWarningMessage(message)
     -- Update the warning message only if different from the one actually displayed
     if not warningMessageText or message ~= warningMessageText.text then
@@ -55,11 +48,17 @@ function module.update(dt)
         warningMessageText = nil
     end
 
+    -- Trigger the game-over state when timer is out of time or the hero is dead
     if timer <= 0 or hero.life <= 0 then
         GameState.setState('game-over')
+
+    -- Trigger the level-win state when all the hostages are rescued
+    elseif #hostagesLst == 0 then
+        GameState.setState('level-win')
     end
 end
 
+-- Return the timer formated to be human-readable like '02:35' instead of 155
 function module.timerInMinutes()
     local timerInSeconds = math.ceil(timer)
     local minutes, seconds = math.floor(timerInSeconds / 60), timerInSeconds % 60

@@ -1,24 +1,11 @@
-local module = {
-    doubleCrosshair = {
-        image,
-        width = 0,
-        height = 0,
-        x = 0,
-        y = 0,
-        angle = 0
-    }
-}
+local module = {}
+
 
 local hero, projectiles, camera
 function module.load(game)
     hero = game.Player.hero
     projectiles = game.Projectiles
     camera = game.Camera
-
-    -- Setup the double crosshair image
-    module.doubleCrosshair.image = love.graphics.newImage("assets/images/crosshair.png")
-    module.doubleCrosshair.width = module.doubleCrosshair.image:getWidth()
-    module.doubleCrosshair.height = module.doubleCrosshair.image:getHeight()
 end
 
 function module.handleKeyboardControls(dt)
@@ -71,15 +58,6 @@ function module.handleMouseControls(dt)
     else
         hero.weapon.angle = hero.weapon.angle - hero.weapon.rotationSpeed * dt
     end
-
-    -- Calculate the position of the crosshair depending to the range and angle of the weapon
-    local newCrosshairXPosition = hero.body.x + math.cos(hero.weapon.angle) * hero.weapon.range
-    local newCrosshairYPosition = hero.body.y + math.sin(hero.weapon.angle) * hero.weapon.range
-    -- Round the distance the crosshair should move and add a minimum of 5 pixel to avoid crosshair vibrations
-    if 5 < math.abs(math.round(module.doubleCrosshair.x - module.doubleCrosshair.y, 0) - math.round(newCrosshairXPosition - newCrosshairYPosition)) then
-        module.doubleCrosshair.x = newCrosshairXPosition
-        module.doubleCrosshair.y = newCrosshairYPosition
-    end
 end
 
 function module.mousepressed(_, _, button)
@@ -101,10 +79,6 @@ function module.mousepressed(_, _, button)
         local bulletOffsetHyp = hero.body:distanceToCenterOf({x = bulletStartingX, y = bulletStartingY})
         projectiles.new(projectiles.KINDS.ALLY, bulletStartingX, bulletStartingY, bulletVx, bulletVy, hero.body.vx, hero.body.vy, hero.weapon.angle, hero.weapon.range - bulletOffsetHyp)
     end
-end
-
-function module.draw()
-    love.graphics.draw(module.doubleCrosshair.image, module.doubleCrosshair.x, module.doubleCrosshair.y, 0, 1, 1, module.doubleCrosshair.width / 2, module.doubleCrosshair.height / 2)
 end
 
 return module

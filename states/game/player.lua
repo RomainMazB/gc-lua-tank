@@ -2,8 +2,8 @@ local module = {}
 
 local tracksSrc = {}
 local tracksLst = {}
-local lastAddedTracks = 0
--- Used to set an index on each tracks drawn to make it slowly disappear
+local tracksDistanceCounter = 0
+-- Used to set an index on each tracks created to make it slowly disappear
 local tracksIndex = 0
 
 local tankMovingSound
@@ -21,6 +21,10 @@ function module.load(game)
         life = 75,
         maxLife = 100,
         lireRestaurationPerSecond = 3,
+        tilemapCoords = {
+            x = 0,
+            y = 0,
+        },
         tank = {
             image,
             width = 0,
@@ -59,12 +63,15 @@ function module.load(game)
     tankMovingSound:setLooping(true)
     tankIdleSound:setLooping(true)
 
+    -- Start the tank's sounds
     tankMovingSound:setVolume(0)
     tankIdleSound:play()
     tankMovingSound:play()
 
     -- Put the Player's tank at the starting position of the level
-    heroStartingX, heroStartingY = level.projection(level.mapData.properties.playerstartingx, level.mapData.properties.playerstartingy)
+    module.hero.tilemapCoords.x = level.mapData.properties.playerstartingx
+    module.hero.tilemapCoords.y = level.mapData.properties.playerstartingy
+    local heroStartingX, heroStartingY = level.projection(module.hero.tilemapCoords.x, module.hero.tilemapCoords.y)
 
     -- Initialize physics and other stuff
     module.hero.body = physics.newPhysicsBody(physics.KINDS.HERO, heroStartingX, heroStartingY, 0, 0, module.hero.tank.width, module.hero.tank.height, -math.half_pi)
@@ -73,19 +80,14 @@ function module.load(game)
     function module.hero.body:collides(dt, collider, heroRef)
         -- If the collider is a fixed obstacle, default resolution would be 
         if (collider.body.kind == physics.KINDS.FIXED_OBSTACLE) then
-            -- If the collider is the flag, capture it
-            if collider.isFlag then
-                
-            else
-                -- Instantly resolve the colission with an opposite movement to not get stuck
-                self.x = self.x - self.vx * dt
-                self.y = self.y - self.vy * dt
+            -- Instantly resolve the colission with an opposite movement to not get stuck
+            self.x = self.x - self.vx * dt
+            self.y = self.y - self.vy * dt
 
-                -- Reverse the speed and velocity to create a bouncy-effect
-                heroRef.speed = - heroRef.speed / 2
-                self.vx = - self.vx
-                self.vy = - self.vy
-            end
+            -- Reverse the speed and velocity to create a bouncy-effect
+            heroRef.speed = - heroRef.speed / 2
+            self.vx = - self.vx
+            self.vy = - self.vy
         end
     end
 end
@@ -96,13 +98,15 @@ function module.update(dt)
     module.hero.body.vx = PlayerCosAngle * module.hero.speed
     module.hero.body.vy = PlayerSinAngle * module.hero.speed
 
+    -- Move the hero and store the distance traveled
     local movedDistanceX, movedDistanceY = module.hero.body:move(dt)
 
+    -- If needed, adds a tracks into the tracksLst
     local movedDistance = movedDistanceX + movedDistanceY
-    lastAddedTracks = lastAddedTracks + movedDistance
     tracksIndex = tracksIndex + movedDistance
+    tracksDistanceCounter = tracksDistanceCounter + movedDistance
 
-    if lastAddedTracks >= 10 then
+    if tracksDistanceCounter >= 10 then
         local newTracks = {
             x = module.hero.body.x,
             y = module.hero.body.y,
@@ -111,7 +115,7 @@ function module.update(dt)
         }
 
         table.insert(tracksLst, newTracks)
-        lastAddedTracks = 0
+        tracksDistanceCounter = 0
     end
 
     -- Remove old tracks
@@ -130,6 +134,11 @@ function module.update(dt)
     -- Make the idle and moving sounds volume varying according to the tank's speed
     tankMovingSound:setVolume(1 * module.hero.speed / module.hero.tank.maxSpeed)
     tankIdleSound:setVolume(1 - .3 * module.hero.speed / module.hero.tank.maxSpeed)
+
+    -- Update tilemapCoords x and y to sync the tilemap pathfinding
+    local PlayerX, PlayerY = level.revProjection(module.hero.body.x, module.hero.body.y)
+    module.hero.tilemapCoords.x = PlayerX
+    module.hero.tilemapCoords.y = PlayerY
 end
 
 function module.draw()

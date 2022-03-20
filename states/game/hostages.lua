@@ -73,36 +73,35 @@ function module.update(dt)
     for h=#module.hostagesLst,1,-1 do
         local hostage = module.hostagesLst[h]
 
-        -- Register the rescued hostage and remove them from the list
+        -- Register the rescued hostage, remove him from the list and abort
         if hostage.ia.state == IA_STATES.RESCUED then
             table.remove(module.hostagesLst, h)
-            gameplay.rescueHostage()
             goto continue
         end
 
+        -- Update tilemapCoords x and y to sync the tilemap pathfinding
         local hostageX, hostageY = level.revProjection(hostage.body.x, hostage.body.y)
         hostage.tilemapCoords.x = hostageX
         hostage.tilemapCoords.y = hostageY
-        local PlayerX, PlayerY = level.revProjection(hero.body.x, hero.body.y)
-        local hostageCanSeeTheHero = pathfinding.canSee(hostage.tilemapCoords.x, hostage.tilemapCoords.y, PlayerX, PlayerY, level.obstacles)
+        hostage.canSeeTheHero = pathfinding.canSee(hostage.tilemapCoords.x, hostage.tilemapCoords.y, hero.tilemapCoords.x, hero.tilemapCoords.y, level.obstacles)
 
-        hostage.canSeeTheHero = hostageCanSeeTheHero
         -- If the hostage can see the hero
-        if hostageCanSeeTheHero then
+        if hostage.canSeeTheHero then
             for _,enemy in ipairs(enemiesLst) do
                 -- Detect if an enemy can see the hostage
                 local EnemyX, EnemyY = level.revProjection(enemy.body.x, enemy.body.y)
                 if pathfinding.canSee(hostage.tilemapCoords.x, hostage.tilemapCoords.y, EnemyX, EnemyY, level.obstacles) then
                     -- In that case, make sure the hostage remains motionless and abort
                     hostage.ia.state = IA_STATES.MOTIONLESS
+                    -- Abort because performance: it's not necessary to look further if the hostage should move
                     goto continue
                 end
             end
 
             -- Only recalculate the hostage target point if the hero changed its last known position
-            if (hostage.ia.lastKnownHeroPosition.x ~= PlayerX or hostage.ia.lastKnownHeroPosition.y ~= PlayerY) then
+            if (hostage.ia.lastKnownHeroPosition.x ~= hero.tilemapCoords.x or hostage.ia.lastKnownHeroPosition.y ~= hero.tilemapCoords.y) then
                 -- Store the last known hero position to not recalculate before it has changed
-                hostage.ia.lastKnownHeroPosition = { x = PlayerX, y = PlayerY }
+                hostage.ia.lastKnownHeroPosition = { x = hero.tilemapCoords.x, y = hero.tilemapCoords.y }
                 hostage:moveTo(hero.body.x, hero.body.y)
             end
         end
@@ -112,7 +111,7 @@ function module.update(dt)
             hostage.body:move(dt)
 
             -- If hostage can't see the hero and reached the hero's last known position
-            if not hostageCanSeeTheHero
+            if not hostage.canSeeTheHero
             and hostage.tilemapCoords.x == hostage.ia.lastKnownHeroPosition.x and hostage.tilemapCoords.y == hostage.ia.lastKnownHeroPosition.y then
                 -- Stop movement
                 hostage:stopMoving()

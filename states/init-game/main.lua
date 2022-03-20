@@ -17,10 +17,6 @@ local function load()
         {
             text = 'Level 2',
             callback = function () GameState.setState('game', 2) end
-        },
-        {
-            text = 'Level 3',
-            callback = function () GameState.setState('game', 3) end
         }
     }
 
